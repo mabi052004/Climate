@@ -1,74 +1,39 @@
-/* Global Styles */
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(to right, #4facfe, #00f2fe);
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
+const apiKey = 'YOUR_API_KEY'; // Replace with your actual API key from OpenWeather
 
-/* Container Styling */
-.container {
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  width: 350px;
-  text-align: center;
-}
+async function getWeather() {
+  const city = document.getElementById('city-input').value;
 
-/* Heading */
-h1 {
-  color: #007bff;
-}
-
-/* Search Box */
-.search-box {
-  margin-bottom: 1rem;
-}
-
-input[type="text"] {
-  padding: 10px;
-  width: 70%;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
-
-button {
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  margin-left: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-/* Weather Info */
-.weather-info {
-  margin-top: 1rem;
-}
-
-h2 {
-  color: #333;
-}
-
-p {
-  margin: 5px 0;
-  color: #555;
-}
-
-/* Weather Icon */
-img {
-  margin-top: 10px;
-  width: 100px;
+  if (!city) {
+    alert('Please enter a city name');
+    return;
   }
+
+  const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+  try {
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) {
+      throw new Error(`City not found: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    displayWeather(data);
+  } catch (error) {
+    document.getElementById('weather-info').innerHTML = `<p>${error.message}</p>`;
+  }
+}
+
+function displayWeather(data) {
+  const weatherInfo = document.getElementById('weather-info');
+  const { name, main, weather, wind } = data;
+  
+  weatherInfo.innerHTML = `
+    <h2>Weather in ${name}</h2>
+    <p><strong>Temperature:</strong> ${main.temp} °C</p>
+    <p><strong>Humidity:</strong> ${main.humidity}%</p>
+    <p><strong>Wind Speed:</strong> ${wind.speed} m/s</p>
+    <p><strong>Condition:</strong> ${weather[0].description}</p>
+    <img src="https://openweathermap.org/img/wn/${weather[0].icon}@2x.png" alt="Weather icon" />
+  `;
+}
